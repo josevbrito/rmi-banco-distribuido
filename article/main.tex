@@ -69,7 +69,7 @@
 % =========================================================
 \title{Estudo de Caso: Java RMI}
 \subtitle{Remote Method Invocation em Sistemas Distribuídos}
-\author{Ana Iara Loayza Costa, José Victor Brito Costa,\\ Hígor Pinheiro Costa, Milena Freire Britto Neves}
+\author[]{Ana Iara Loayza Costa, Higor Pinheiro Costa, \\ José Victor Brito Costa, Milena Freire Britto Neves}
 \institute{Disciplina de Sistemas Distribuídos}
 \date{\today}
 
@@ -361,7 +361,7 @@ BancoService banco = (BancoService) reg.lookup("BancoService");
     \begin{columns}[T]
         \begin{column}{0.52\textwidth}
             \begin{enumerate}
-                \item Cliente executa \code{banco.depositar("joao", 250.0)}.
+                \item Cliente executa \code{banco.depositar("cliente", 250.0)}.
                 \item O stub intercepta a chamada.
                 \item Parâmetros são empacotados: \textit{marshalling}.
                 \item Dados atravessam a rede.
@@ -486,20 +486,27 @@ servidor.registrarCallback(callback);
 % SLIDE 14 - PASSOS MODERNOS
 % =========================================================
 \begin{frame}{Passos para implementar Java RMI}
-    \begin{enumerate}
-        \item Definir uma \textbf{interface remota} que estende \code{Remote}.
-        \item Declarar \code{throws RemoteException} nos métodos remotos.
-        \item Criar uma classe que \textbf{implementa} a interface remota.
-        \item Exportar o objeto remoto com \code{UnicastRemoteObject}.
-        \item Criar ou acessar o \code{RMI Registry}.
-        \item Registrar o objeto remoto com \code{bind} ou \code{rebind}.
-        \item No cliente, fazer \code{lookup} e invocar métodos no stub recebido.
-    \end{enumerate}
-
-    \vspace{0.25cm}
-    \begin{alertblock}{Atualização importante}
-        Em materiais antigos aparece o passo \code{rmic}. Hoje ele não deve ser tratado como obrigatório: o compilador estático de stubs \code{rmic} foi removido do JDK 15.
-    \end{alertblock}
+    \begin{columns}[T]
+        \begin{column}{0.46\textwidth}
+            \begin{block}{No servidor}
+                \begin{enumerate}
+                    \item Definir interface \code{Remote}
+                    \item Implementar com \code{UnicastRemoteObject}
+                    \item Criar o \code{Registry} e registrar com \code{rebind}
+                \end{enumerate}
+            \end{block}
+        \end{column}
+        \begin{column}{0.46\textwidth}
+            \begin{block}{No cliente}
+                \begin{enumerate}
+                    \setcounter{enumi}{3}
+                    \item Localizar o \code{Registry}
+                    \item Fazer \code{lookup} e obter o stub
+                    \item Invocar métodos normalmente
+                \end{enumerate}
+            \end{block}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 % =========================================================
@@ -618,8 +625,8 @@ public interface ClienteListener
             \begin{block}{Cliente exporta o objeto}
 \begin{lstlisting}[basicstyle=\ttfamily\tiny]
 ClienteListenerImpl cb =
-    new ClienteListenerImpl("joao");
-banco.registrarListener("joao", cb);
+    new ClienteListenerImpl("cliente");
+banco.registrarListener("cliente", cb);
 // cb e enviado como stub ao servidor
 \end{lstlisting}
             \end{block}
