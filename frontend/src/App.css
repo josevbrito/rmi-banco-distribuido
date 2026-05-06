@@ -1,0 +1,154 @@
+/* ── Reset e base ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: #0f1117;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── Header ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #1a1d27;
+  border-bottom: 1px solid #2d3148;
+}
+.header-left { display: flex; align-items: center; gap: 1rem; }
+.header-logo { font-size: 2rem; }
+.header-title { font-size: 1.4rem; font-weight: 700; color: #fff; }
+.header-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+
+.status-badge {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+}
+.status-badge.online  { background: #052e1a; color: #34d399; border: 1px solid #065f46; }
+.status-badge.offline { background: #2d1111; color: #f87171; border: 1px solid #7f1d1d; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── Main ── */
+.main { flex: 1; padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+/* ── Contas ── */
+.section-title { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
+.contas-grid { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+
+.conta-card {
+  display: flex; align-items: center; gap: .9rem;
+  background: #1a1d27; border: 1px solid #2d3148;
+  border-radius: 12px; padding: .9rem 1.3rem;
+  cursor: pointer; transition: all .18s;
+  min-width: 180px;
+}
+.conta-card:hover { border-color: #6366f1; transform: translateY(-2px); }
+.conta-card.selecionada { border-color: #6366f1; background: #1e1f3a; box-shadow: 0 0 0 3px #6366f130; }
+.conta-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.1rem; color: #fff; flex-shrink: 0;
+}
+.conta-nome { display: block; font-weight: 600; color: #e2e8f0; font-size: .9rem; }
+.conta-saldo { display: block; font-size: .85rem; color: #34d399; margin-top: 2px; }
+
+/* ── Grid ── */
+.grid-principal { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.col-esquerda { display: flex; flex-direction: column; gap: 1.5rem; }
+.col-direita  { display: flex; flex-direction: column; }
+
+/* ── Card genérico ── */
+.card {
+  background: #1a1d27; border: 1px solid #2d3148;
+  border-radius: 14px; padding: 1.4rem;
+}
+.card-title { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-bottom: 1rem; }
+.hint { color: #475569; font-size: .85rem; }
+.conta-ativa { font-size: .85rem; color: #94a3b8; margin-bottom: .75rem; }
+
+/* ── Operações ── */
+.input-valor {
+  width: 100%; padding: .7rem 1rem;
+  background: #0f1117; border: 1px solid #2d3148; border-radius: 8px;
+  color: #e2e8f0; font-size: 1rem; margin-bottom: .75rem;
+  outline: none; transition: border-color .18s;
+}
+.input-valor:focus { border-color: #6366f1; }
+
+.btn-group { display: flex; gap: .75rem; }
+.btn {
+  flex: 1; padding: .7rem; border: none; border-radius: 8px;
+  font-weight: 600; font-size: .9rem; cursor: pointer; transition: opacity .18s;
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-depositar { background: #065f46; color: #34d399; }
+.btn-depositar:hover:not(:disabled) { background: #047857; }
+.btn-sacar     { background: #7f1d1d; color: #f87171; }
+.btn-sacar:hover:not(:disabled) { background: #991b1b; }
+
+.mensagem {
+  margin-top: .75rem; padding: .6rem .9rem;
+  border-radius: 8px; font-size: .85rem;
+}
+.mensagem.sucesso { background: #052e1a; color: #34d399; border: 1px solid #065f46; }
+.mensagem.erro    { background: #2d1111; color: #f87171; border: 1px solid #7f1d1d; }
+
+/* ── Extrato ── */
+.extrato-lista { display: flex; flex-direction: column; gap: .5rem; max-height: 320px; overflow-y: auto; }
+.extrato-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .65rem .9rem; border-radius: 8px; border-left: 3px solid;
+}
+.extrato-item.deposito { background: #052e1a30; border-color: #34d399; }
+.extrato-item.saque    { background: #2d111130; border-color: #f87171; }
+.extrato-left  { display: flex; flex-direction: column; gap: 2px; }
+.extrato-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.extrato-tipo  { font-weight: 600; font-size: .85rem; color: #e2e8f0; }
+.extrato-data  { font-size: .72rem; color: #64748b; }
+.extrato-valor { font-weight: 700; font-size: .9rem; }
+.extrato-item.deposito .extrato-valor { color: #34d399; }
+.extrato-item.saque    .extrato-valor { color: #f87171; }
+.extrato-saldo { font-size: .72rem; color: #64748b; }
+
+/* ── Feed SSE ── */
+.feed-card { height: 100%; }
+.feed-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: #6366f1; margin-right: .4rem; animation: pulse 1.5s infinite;
+}
+.feed-sub { font-size: .72rem; color: #475569; margin-bottom: .9rem; }
+.feed-lista { display: flex; flex-direction: column; gap: .4rem; max-height: 480px; overflow-y: auto; }
+.feed-item {
+  display: grid; grid-template-columns: 60px 90px 90px 90px 1fr;
+  align-items: center; gap: .5rem;
+  padding: .5rem .75rem; border-radius: 8px; font-size: .8rem;
+  animation: slideIn .25s ease;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; } }
+.feed-item.deposito { background: #052e1a40; border: 1px solid #065f4640; }
+.feed-item.saque    { background: #2d111140; border: 1px solid #7f1d1d40; }
+.feed-conta  { font-weight: 700; color: #a5b4fc; }
+.feed-tipo   { font-weight: 600; }
+.feed-item.deposito .feed-tipo { color: #34d399; }
+.feed-item.saque    .feed-tipo { color: #f87171; }
+.feed-valor  { color: #e2e8f0; font-weight: 600; }
+.feed-saldo  { color: #64748b; }
+.feed-hora   { color: #475569; text-align: right; font-size: .72rem; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 2px; }
+
+/* ── Responsivo ── */
+@media (max-width: 900px) {
+  .grid-principal { grid-template-columns: 1fr; }
+  .main { padding: 1rem; }
+}
