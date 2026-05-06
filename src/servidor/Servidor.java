@@ -4,16 +4,21 @@ import comum.BancoService;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-/**
- * Ponto de entrada do servidor RMI.
- * Cria o objeto remoto, inicia o Registry e registra o serviço.
- */
 public class Servidor {
 
     public static void main(String[] args) {
-        // TODO: instanciar BancoServiceImpl
-        // TODO: criar Registry na porta 1099
-        // TODO: registrar com nome "BancoService"
-        // TODO: imprimir mensagem de confirmação
+        try {
+            BancoServiceImpl banco = new BancoServiceImpl();
+
+            Registry registry = LocateRegistry.createRegistry(1099);
+            registry.rebind("BancoService", banco);
+
+            System.out.println("[Servidor] RMI Registry iniciado na porta 1099.");
+            System.out.println("[Servidor] BancoService registrado. Aguardando clientes...");
+
+        } catch (Exception e) {
+            System.err.println("[Servidor] Erro ao iniciar:");
+            e.printStackTrace();
+        }
     }
 }

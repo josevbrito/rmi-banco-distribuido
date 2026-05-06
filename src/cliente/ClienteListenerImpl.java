@@ -21,4 +21,8 @@ public class ClienteListenerImpl extends UnicastRemoteObject implements ClienteL
     }
 
     // TODO: implementar onTransacao exibindo a notificação recebida
+    @Override
+    public void onTransacao(Transacao transacao) throws RemoteException {
+        // TODO: exibir notificação recebida
+    }
 }
