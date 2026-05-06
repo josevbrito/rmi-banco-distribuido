@@ -4,6 +4,7 @@ import comum.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.Collections;
 
 public class BancoServiceImpl extends UnicastRemoteObject implements BancoService {
 
@@ -18,11 +19,18 @@ public class BancoServiceImpl extends UnicastRemoteObject implements BancoServic
     // Armazena listeners registrados por conta
     private final Map<String, List<ClienteListener>> listeners = new HashMap<>();
 
+    // Referência à API REST para broadcast de eventos SSE
+    private ApiRest apiRest;
+
     public BancoServiceImpl() throws RemoteException {
         super();
         // Cria duas contas de teste com saldo inicial
         criarConta("joao", 1000.0);
         criarConta("maria", 500.0);
+    }
+
+    public void setApiRest(ApiRest apiRest) {
+        this.apiRest = apiRest;
     }
 
     // Método auxiliar interno — não faz parte da interface remota
@@ -101,7 +109,20 @@ public class BancoServiceImpl extends UnicastRemoteObject implements BancoServic
                 mortos.add(listener);
             }
         }
+        // Broadcast SSE para clientes React
+        if (apiRest != null) {
+            String json = String.format(
+                "{\"conta\":\"%s\",\"tipo\":\"%s\",\"valor\":%.2f,\"saldo\":%.2f,\"dataHora\":\"%s\"}",
+                conta, t.getTipo(), t.getValor(), t.getSaldoApos(), t.getDataHora());
+            apiRest.broadcast("transacao", json);
+        }
+
         lista.removeAll(mortos);
+    }
+
+    /** Exposto para a ApiRest montar o JSON de /contas */
+    public Map<String, Double> getSaldos() {
+        return Collections.unmodifiableMap(saldos);
     }
 
     // Lança RemoteException se a conta não existir
