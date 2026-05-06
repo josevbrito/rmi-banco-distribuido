@@ -1,16 +1,44 @@
-export default function Header({ servidorOnline }) {
+export default function Header({ servidorOnline, aba, setAba, logCount }) {
+  const tabs = [
+    { id: 'dashboard',  label: 'Dashboard' },
+    { id: 'log',        label: 'Log do Sistema', badge: logCount > 0 ? logCount : null },
+    { id: 'referencia', label: 'Referência RMI' },
+  ];
+
   return (
     <header className="header">
-      <div className="header-left">
-        <span className="header-logo">🏦</span>
-        <div>
-          <h1 className="header-title">Banco Distribuído</h1>
-          <p className="header-sub">Java RMI · Sistemas Distribuídos</p>
-        </div>
+      <div className="header-brand">
+        <div className="brand-icon">BD</div>
+        <span className="brand-name">Banco Distribuído</span>
+        <span className="brand-tag">RMI</span>
       </div>
-      <div className={`status-badge ${servidorOnline ? 'online' : 'offline'}`}>
-        <span className="status-dot" />
-        {servidorOnline ? 'Servidor Online' : 'Servidor Offline'}
+
+      <nav className="header-nav">
+        {tabs.map(t => (
+          <button
+            key={t.id}
+            className={`nav-tab ${aba === t.id ? 'active' : ''}`}
+            onClick={() => setAba(t.id)}
+          >
+            {t.label}
+            {t.badge != null && (
+              <span className="nav-badge">{t.badge > 999 ? '999+' : t.badge}</span>
+            )}
+          </button>
+        ))}
+      </nav>
+
+      <div className="header-right">
+        <div className="status-item">
+          <span className={`status-dot ${servidorOnline ? 'online' : 'offline'}`} />
+          <span className={`status-label ${servidorOnline ? 'online' : 'offline'}`}>
+            {servidorOnline ? 'Online' : 'Offline'}
+          </span>
+        </div>
+        <div className="status-ports">
+          <span>RMI :1099</span>
+          <span>REST :8080</span>
+        </div>
       </div>
     </header>
   );

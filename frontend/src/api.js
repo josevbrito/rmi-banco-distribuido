@@ -28,11 +28,10 @@ export async function getExtrato(conta) {
   return res.json();
 }
 
-export function criarSSE(onEvento) {
+export function criarSSE(onEvento, onOpen, onError) {
   const es = new EventSource(`${BASE}/eventos`);
-  es.addEventListener('transacao', (e) => {
-    onEvento(JSON.parse(e.data));
-  });
-  es.onerror = () => console.warn('[SSE] Conexão perdida, reconectando...');
+  es.addEventListener('transacao', (e) => onEvento(JSON.parse(e.data)));
+  es.onopen  = () => onOpen?.();
+  es.onerror = () => onError?.();
   return es;
 }
