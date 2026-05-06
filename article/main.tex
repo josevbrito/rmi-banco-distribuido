@@ -1,0 +1,894 @@
+\documentclass[aspectratio=169]{beamer}
+
+% =========================================================
+% Tema e pacotes
+% =========================================================
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usetikzlibrary{shapes,arrows.meta,positioning,fit,calc}
+
+% =========================================================
+% Cores
+% =========================================================
+\definecolor{rmiBlue}{RGB}{1,73,124}
+\definecolor{rmiTeal}{RGB}{2,128,144}
+\definecolor{rmiSea}{RGB}{0,168,150}
+\definecolor{rmiLightBlue}{RGB}{225,241,248}
+\definecolor{rmiLightGreen}{RGB}{226,245,240}
+\definecolor{rmiLightYellow}{RGB}{255,246,210}
+\definecolor{rmiGray}{RGB}{245,245,245}
+\definecolor{rmiDark}{RGB}{1,73,124}
+
+\setbeamercolor{structure}{fg=rmiBlue}
+\setbeamercolor{frametitle}{fg=white,bg=rmiBlue}
+\setbeamercolor{title}{fg=white,bg=rmiBlue}
+\setbeamercolor{block title}{fg=white,bg=rmiTeal}
+\setbeamercolor{block body}{bg=rmiLightBlue}
+
+% =========================================================
+% Configuração de codigo Java
+% =========================================================
+\lstdefinestyle{javastyle}{
+    language=Java,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!75!black}\bfseries,
+    commentstyle=\color{green!45!black},
+    stringstyle=\color{red!65!black},
+    showstringspaces=false,
+    breaklines=true,
+    frame=leftline,
+    framerule=2.5pt,
+    rulecolor=\color{rmiTeal},
+    backgroundcolor=\color{white},
+    xleftmargin=6pt,
+    tabsize=4
+}
+\lstset{style=javastyle}
+
+% =========================================================
+% Macros uteis
+% =========================================================
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\ok}{\ensuremath{\checkmark}}
+\newcommand{\seta}{\ensuremath{\rightarrow}}
+
+% =========================================================
+% Dados da apresentação
+% =========================================================
+\title{Estudo de Caso: Java RMI}
+\subtitle{Remote Method Invocation em Sistemas Distribuídos}
+\author{Ana Iara Loayza Costa, José Victor Brito Costa,\\ Hígor Pinheiro Costa, Milena Freire Britto Neves}
+\institute{Disciplina de Sistemas Distribuídos}
+\date{\today}
+
+\begin{document}
+
+% =========================================================
+% SLIDE 1 - CAPA
+% =========================================================
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% =========================================================
+% SLIDE 2 - ROTEIRO
+% =========================================================
+% ===============================================
+% SLIDE 2: SUMÁRIO
+% ===============================================
+\begin{frame}{Sumário}
+    \tableofcontents
+\end{frame}
+
+% =========================================================
+% PARTE 1
+% =========================================================
+\section{Base conceitual}
+ 
+% =========================================================
+% SLIDE 3 - PONTE
+% =========================================================
+\begin{frame}{Da invocação remota ao Java RMI}
+    \centering
+    \begin{tikzpicture}[
+        levelbox/.style={rectangle, rounded corners=6pt, draw=rmiBlue, line width=1.8pt, align=center, minimum width=2.8cm, minimum height=1.2cm, fill=rmiLightBlue},
+        arrow/.style={-{Latex[length=4mm, width=3mm]}, line width=2.5pt, rmiTeal}
+    ]
+        % Sequência horizontal
+        \node[levelbox] (inv) at (0, 0) {
+            \textbf{Invocação}\\[-2pt]
+            \textbf{Remota}\\[4pt]
+            \footnotesize Conceito geral
+        };
+        
+        \node[levelbox, fill=white] (rmi) at (4.2, 0) {
+            \textbf{RMI}\\[4pt]
+            \footnotesize Orientado\\[-2pt]\footnotesize a objetos
+        };
+        
+        \node[levelbox, fill=rmiLightGreen] (java) at (8.4, 0) {
+            \textbf{Java RMI}\\[4pt]
+            \footnotesize Implementação\\[-2pt]\footnotesize em Java
+        };
+        
+        % Setas de progressão
+        \draw[arrow] (inv.east) -- (rmi.west);
+        \draw[arrow] (rmi.east) -- (java.west);
+        
+        % Alternativa: RPC
+        \node[levelbox, draw=gray, fill=gray!10] (rpc) at (4.2, -2) {
+            \textbf{RPC}\\[4pt]
+            \footnotesize Procedural
+        };
+        \draw[-{Latex[length=4mm, width=3mm]}, line width=1.5pt, gray, dashed] (inv.south) -- ++(0,-0.5) -| (rpc.north);
+        
+        % Anotações
+        \node[font=\footnotesize, align=center, text=rmiDark] at (2.1, 0.9) {especialização};
+        \node[font=\footnotesize, align=center, text=rmiDark] at (6.3, 0.9) {implementação};
+        \node[font=\footnotesize, align=center, text=gray] at (2.1, -1.35) {alternativa};
+    \end{tikzpicture}
+ 
+    \vspace{0.6cm}
+    \begin{block}{Ideia Central}
+        Java RMI aplica o conceito de invocação remota ao paradigma orientado a objetos.
+    \end{block}
+\end{frame}
+
+% =========================================================
+% SLIDE 4 - O QUE E
+% =========================================================
+\begin{frame}{O que é Java RMI?}
+    \begin{columns}[T]
+        \begin{column}{0.50\textwidth}
+            \begin{block}{Definicao}
+                Java RMI permite que um objeto em uma JVM invoque métodos de um objeto localizado em outra JVM, possívelmente em outra máquina.
+            \end{block}
+
+            \vspace{0.2cm}
+            \textbf{Em vez de pensar apenas em mensagens, o programador trabalha com:}
+            \begin{itemize}
+                \item interfaces Java;
+                \item objetos remotos;
+                \item métodos;
+                \item exceções;
+                \item serialização.
+            \end{itemize}
+        \end{column}
+
+        \begin{column}{0.46\textwidth}
+            \centering
+            \begin{tikzpicture}[
+                vm/.style={rectangle, rounded corners, draw=rmiBlue, fill=rmiLightBlue, very thick, align=center, minimum width=3.7cm, minimum height=1.3cm},
+                arr/.style={-{Latex[length=3mm]}, very thick, rmiTeal}
+            ]
+                \node[vm] (a) {JVM A\\\textbf{Cliente}};
+                \node[vm, below=1.4cm of a] (b) {JVM B\\\textbf{Objeto remoto}};
+                \draw[arr] (a) -- node[right, align=left] {chamada de\\método remoto} (b);
+
+                \draw[arr, dashed, gray] (b.west) -- ++(-0.8,0) |- node[left, pos=0.25, font=\footnotesize, align=right] {retorno} (a.west);
+            \end{tikzpicture}
+
+            \vspace{0.5cm}
+            \begin{alertblock}{Atenção}
+                A sintaxe parece local, mas a semântica é distribuída: existe rede, latência e possibilidade de falha parcial.
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% =========================================================
+% SLIDE 5 - POR QUE
+% =========================================================
+\begin{frame}[t]{Por que RMI existe?}
+
+    \begin{columns}[T,onlytextwidth]
+        % Coluna esquerda
+        \begin{column}{0.49\textwidth}
+            \textbf{\textcolor{red}{Problema: comunicação em sistemas distribuídos}}
+
+            \begin{itemize}\setlength\itemsep{1pt}
+                \item Processos em máquinas diferentes precisam cooperar.
+                \item A comunicação direta por sockets é mais verbosa.
+                \item O programador precisa lidar com:
+                \begin{itemize}\setlength\itemsep{0pt}
+                    \item[$\circ$] envio e recebimento de mensagens;
+                    \item[$\circ$] formato dos dados;
+                    \item[$\circ$] protocolos de comunicação;
+                    \item[$\circ$] erros de rede.
+                \end{itemize}
+            \end{itemize}
+        \end{column}
+
+        % Coluna direita
+        \begin{column}{0.49\textwidth}
+            \textbf{\textcolor{teal}{Solução: proposta do RMI}}
+
+            \begin{itemize}\setlength\itemsep{1pt}
+                \item[$\checkmark$] Abstrai parte da comunicação pela rede.
+                \item[$\checkmark$] Usa interfaces Java familiares.
+                \item[$\checkmark$] Permite invocar métodos remotos.
+                \item[$\checkmark$] Mantém o modelo orientado a objetos.
+                \item[$\checkmark$] Esconde detalhes de serialização e transporte.
+            \end{itemize}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.3cm}
+
+    \begin{beamercolorbox}[
+        rounded=true,
+        shadow=false,
+        wd=\textwidth,
+        sep=0.8ex
+    ]{block body}
+        \scriptsize
+        \textbf{Resumo:}
+        RMI não elimina os desafios dos sistemas distribuídos, mas oferece uma
+        abstração orientada a objetos para chamar métodos em objetos localizados
+        em outra JVM, possivelmente em outra máquina.
+    \end{beamercolorbox}
+\end{frame}
+
+% =========================================================
+% SLIDE 6 - COMPONENTES
+% =========================================================
+\begin{frame}{Componentes principais do Java RMI}
+    \begin{table}
+        \small
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabular}{>{\bfseries}p{3.2cm}p{9.2cm}}
+            \toprule
+            Componente & Funcao \\
+            \midrule
+            Interface remota & Define os métodos que podem ser invocados remotamente. \\
+            Objeto remoto & Implementa a interface remota e executa a lógica real no servidor. \\
+            Stub ou proxy & Representa o objeto remoto no lado do cliente. \\
+            RMI Registry & Serviço de nomes usado para localizar objetos remotos. \\
+            Serialização & Empacota parâmetros, retornos e exceções para trafegar pela rede. \\
+            RemoteException & Indica falhas especificas de comunicação remota. \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+\end{frame}
+
+% =========================================================
+% PARTE 2
+% =========================================================
+\section{Arquitetura e fluxo}
+
+% =========================================================
+% SLIDE 7 - DIVISOR
+% =========================================================
+\begin{frame}
+    \centering
+    \Huge{Arquitetura e fluxo de chamada}
+
+    \vspace{0.6cm}
+    \large{Como uma chamada de método atravessa a rede?}
+\end{frame}
+
+% =========================================================
+% SLIDE 8 - ARQUITETURA
+% =========================================================
+\begin{frame}{Arquitetura geral do Java RMI}
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.1cm,
+        block/.style={rectangle, rounded corners, draw=rmiBlue, fill=rmiLightBlue, very thick, align=center, minimum width=2.6cm, minimum height=1.0cm},
+        runtime/.style={rectangle, rounded corners, draw=rmiTeal, fill=rmiLightGreen, thick, align=center, minimum width=3.0cm, minimum height=1.0cm},
+        registry/.style={rectangle, rounded corners, draw=orange!80!black, fill=rmiLightYellow, thick, align=center, minimum width=3.2cm, minimum height=1.0cm},
+        arr/.style={-{Latex[length=3mm]}, very thick, rmiBlue}
+    ]
+        \node[block] (client) {Aplicacao\\cliente};
+        \node[block, right=1.2cm of client] (stub) {Stub\\proxy local};
+        \node[runtime, right=1.2cm of stub] (transport) {RMI Runtime\\rede / JRMP};
+        \node[block, right=1.2cm of transport] (remote) {Objeto remoto\\servidor};
+        \node[registry, below=1.25cm of transport] (reg) {RMI Registry\\nomes \seta{} stubs};
+
+        \draw[arr] (client) -- node[above, font=\scriptsize] {método} (stub);
+        \draw[arr] (stub) -- node[above, font=\scriptsize] {marshal} (transport);
+        \draw[arr] (transport) -- node[above, font=\scriptsize] {invocação} (remote);
+        \draw[arr, dashed] (client.south) .. controls +(0,-1.0) and +(-2.1,0) .. node[below, font=\scriptsize] {lookup inicial} (reg.west);
+        \draw[arr, dashed] (remote.south) .. controls +(0,-1.0) and +(2.1,0) .. node[below, font=\scriptsize] {bind/rebind} (reg.east);
+    \end{tikzpicture}
+
+    \vspace{0.35cm}
+    \begin{block}{Leitura do diagrama}
+        O Registry é usado para localizar o objeto remoto. Depois do \code{lookup}, o cliente invoca métodos no stub.
+    \end{block}
+\end{frame}
+
+% =========================================================
+% SLIDE 9 - REGISTRY
+% =========================================================
+\begin{frame}[fragile]{RMI Registry: serviço de nomes}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \begin{block}{No servidor}
+                \begin{enumerate}
+                    \item Cria o objeto remoto.
+                    \item Exporta o objeto para receber chamadas.
+                    \item Registra o objeto com um nome.
+                    \item Aguarda requisicoes.
+                \end{enumerate}
+            \end{block}
+
+            \begin{lstlisting}[basicstyle=\ttfamily\tiny]
+Registry reg = LocateRegistry.createRegistry(1099);
+reg.rebind("BancoService", objetoRemoto);
+            \end{lstlisting}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \begin{block}{No cliente}
+                \begin{enumerate}
+                    \item Acessa o Registry do servidor.
+                    \item Faz \code{lookup} pelo nome.
+                    \item Recebé um stub.
+                    \item Chama métodos no stub.
+                \end{enumerate}
+            \end{block}
+
+            \begin{lstlisting}[basicstyle=\ttfamily\tiny]
+Registry reg = LocateRegistry.getRegistry("localhost", 1099);
+BancoService banco = (BancoService) reg.lookup("BancoService");
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.2cm}
+    \centering
+    \small Porta padrao usual do Registry: \code{1099}.
+\end{frame}
+
+% =========================================================
+% SLIDE 10 - FLUXO
+% =========================================================
+\begin{frame}{Fluxo de uma chamada remota}
+    \begin{columns}[T]
+        \begin{column}{0.52\textwidth}
+            \begin{enumerate}
+                \item Cliente executa \code{banco.depositar("joao", 250.0)}.
+                \item O stub intercepta a chamada.
+                \item Parâmetros são empacotados: \textit{marshalling}.
+                \item Dados atravessam a rede.
+                \item Servidor desempacota os parâmetros.
+                \item Objeto remoto executa o método real.
+                \item Resultado ou exceção e empacotado.
+                \item Resposta retorna ao cliente.
+            \end{enumerate}
+        \end{column}
+
+        \begin{column}{0.44\textwidth}
+            \centering
+            \begin{tikzpicture}[
+                node distance=0.62cm,
+                flowstep/.style={rectangle, rounded corners, draw=rmiBlue, fill=rmiLightBlue, align=center, minimum width=4.6cm, minimum height=0.55cm},
+                arr/.style={-{Latex[length=2.4mm]}, thick, rmiBlue}
+            ]
+                \node[flowstep] (s1) {Cliente chama método};
+                \node[flowstep, below=of s1] (s2) {Stub empacota parâmetros};
+                \node[flowstep, below=of s2] (s3) {Rede transporta a chamada};
+                \node[flowstep, below=of s3] (s4) {Servidor invoca objeto real};
+                \node[flowstep, below=of s4] (s5) {Resultado volta ao cliente};
+                \draw[arr] (s1) -- (s2);
+                \draw[arr] (s2) -- (s3);
+                \draw[arr] (s3) -- (s4);
+                \draw[arr] (s4) -- (s5);
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% =========================================================
+% SLIDE 11 - PARAMETROS
+% =========================================================
+\begin{frame}[fragile]{Passagem de parâmetros e retorno}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Por valor}
+                Objetos não remotos são cópiados por serialização.
+            \end{block}
+            \begin{itemize}
+                \item Tipos primitivos e \code{String}.
+                \item Objetos que implementam \code{Serializable}.
+                \item Alterações na cópia não mudam o original.
+            \end{itemize}
+
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+Pessoa p = servico.buscarPessoa(10);
+// Pessoa chega como copia serializada
+\end{lstlisting}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Por referência remota}
+                Objetos remotos exportados são enviados como stub.
+            \end{block}
+            \begin{itemize}
+                \item O objeto real continua na JVM original.
+                \item O receptor recebe uma referência remota.
+                \item Permite chamadas de volta ao objeto remoto.
+            \end{itemize}
+
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+servidor.registrarCallback(callback);
+// callback remoto e passado como stub
+\end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% =========================================================
+% SLIDE 12 - FALHAS
+% =========================================================
+\begin{frame}{Chamada remota não e chamada local}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \textbf{Uma chamada local pode falhar por:}
+            \begin{itemize}
+                \item erro de programação;
+                \item exceção da regra de negocio;
+                \item problema de memória;
+                \item objeto nulo.
+            \end{itemize}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \textbf{Uma chamada remota também pode falhar por:}
+            \begin{itemize}
+                \item servidor fora do ar;
+                \item timeout;
+                \item perda de conexão;
+                \item erro de serialização;
+                \item incompatibilidade de classes;
+                \item objeto remoto indisponível.
+            \end{itemize}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.35cm}
+    \begin{alertblock}{Ponto-chave}
+        Por isso, métodos remotos declaram \code{throws RemoteException}. A interface ja avisa que a rede faz parte da chamada.
+    \end{alertblock}
+\end{frame}
+
+% =========================================================
+% PARTE 3
+% =========================================================
+\section{Implementação}
+
+% =========================================================
+% SLIDE 13 - DIVISOR
+% =========================================================
+\begin{frame}
+    \centering
+    \Huge{Implementação prática}
+
+    \vspace{0.6cm}
+    \large{Exemplo: banco distribuído com interface em tempo real}
+\end{frame}
+
+% =========================================================
+% SLIDE 14 - PASSOS MODERNOS
+% =========================================================
+\begin{frame}{Passos para implementar Java RMI}
+    \begin{enumerate}
+        \item Definir uma \textbf{interface remota} que estende \code{Remote}.
+        \item Declarar \code{throws RemoteException} nos métodos remotos.
+        \item Criar uma classe que \textbf{implementa} a interface remota.
+        \item Exportar o objeto remoto com \code{UnicastRemoteObject}.
+        \item Criar ou acessar o \code{RMI Registry}.
+        \item Registrar o objeto remoto com \code{bind} ou \code{rebind}.
+        \item No cliente, fazer \code{lookup} e invocar métodos no stub recebido.
+    \end{enumerate}
+
+    \vspace{0.25cm}
+    \begin{alertblock}{Atualização importante}
+        Em materiais antigos aparece o passo \code{rmic}. Hoje ele não deve ser tratado como obrigatório: o compilador estático de stubs \code{rmic} foi removido do JDK 15.
+    \end{alertblock}
+\end{frame}
+
+% =========================================================
+% SLIDE 15 - INTERFACE
+% =========================================================
+\begin{frame}[fragile]{Código 1: interface remota}
+\begin{lstlisting}
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.List;
+
+public interface BancoService extends Remote {
+    void depositar(String conta, double valor)
+            throws RemoteException;
+    void sacar(String conta, double valor)
+            throws RemoteException, SaldoInsuficienteException;
+    double consultarSaldo(String conta)
+            throws RemoteException;
+    List<Transacao> getExtrato(String conta)
+            throws RemoteException;
+    void registrarListener(String conta, ClienteListener l)
+            throws RemoteException;
+}
+\end{lstlisting}
+
+\vspace{0.2cm}
+\begin{itemize}
+    \item \code{Remote} marca a interface como remota.
+    \item \code{getExtrato} retorna uma lista de objetos — demonstra \textbf{passagem por valor}.
+    \item \code{registrarListener} recebe um objeto remoto — demonstra \textbf{passagem por referência remota}.
+\end{itemize}
+\end{frame}
+
+% =========================================================
+% SLIDE 16 - TRANSACAO E EXCECAO
+% =========================================================
+\begin{frame}[fragile]{Código 2: objetos que trafegam pela rede}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Passagem por valor}
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+public class Transacao
+        implements Serializable {
+    private static final long
+        serialVersionUID = 1L;
+    private final Tipo tipo;
+    private final double valor;
+    private final double saldoApos;
+    private final LocalDateTime dataHora;
+    // getters + toString...
+}
+\end{lstlisting}
+            \end{block}
+            \small Chega ao cliente como \textbf{cópia serializada}. Alterações não afetam o servidor.
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Exceção serializada}
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+public class SaldoInsuficienteException
+        extends Exception
+        implements Serializable {
+    private final double saldoAtual;
+    private final double valorSolicitado;
+    // construtor com mensagem formatada
+}
+\end{lstlisting}
+            \end{block}
+            \small Criada no servidor, \textbf{serializada, enviada pela rede} e capturada no cliente com \code{catch} normal.
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% =========================================================
+% SLIDE 17 - IMPLEMENTACAO DO OBJETO REMOTO
+% =========================================================
+\begin{frame}[fragile]{Código 3: implementação do objeto remoto}
+\begin{lstlisting}
+public class BancoServiceImpl
+        extends UnicastRemoteObject
+        implements BancoService {
+
+    private final Map<String, Double> saldos = new HashMap<>();
+    private final Map<String, List<Transacao>> extratos = new HashMap<>();
+    private final Map<String, List<ClienteListener>> listeners = new HashMap<>();
+
+    public synchronized void sacar(String conta, double valor)
+            throws RemoteException, SaldoInsuficienteException {
+        double saldoAtual = saldos.get(conta);
+        if (valor > saldoAtual)
+            throw new SaldoInsuficienteException(saldoAtual, valor);
+        // atualiza saldo, registra transacao, notifica listeners...
+    }
+}
+\end{lstlisting}
+
+\vspace{0.1cm}
+\small \code{synchronized} garante que operações concorrentes de múltiplos clientes sejam seguras.
+\end{frame}
+
+% =========================================================
+% SLIDE 18 - CALLBACK
+% =========================================================
+\begin{frame}[fragile]{Código 4: callback — passagem por referência remota}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Interface de callback}
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+public interface ClienteListener
+        extends Remote {
+    void onTransacao(Transacao t)
+        throws RemoteException;
+}
+\end{lstlisting}
+            \end{block}
+            \begin{block}{Cliente exporta o objeto}
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+ClienteListenerImpl cb =
+    new ClienteListenerImpl("joao");
+banco.registrarListener("joao", cb);
+// cb e enviado como stub ao servidor
+\end{lstlisting}
+            \end{block}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Servidor chama de volta}
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+// dentro de depositar() no servidor:
+for (ClienteListener l : listeners) {
+    l.onTransacao(t); // chama o cliente!
+}
+\end{lstlisting}
+            \end{block}
+
+            \vspace{0.2cm}
+            \begin{alertblock}{Inversão de papéis}
+                O \textbf{servidor chama o cliente}. O objeto remoto está na JVM do cliente; o servidor possui apenas um stub dele.
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% =========================================================
+% SLIDE 19 - SERVIDOR E REGISTRY
+% =========================================================
+\begin{frame}[fragile]{Código 5: servidor e registry}
+\begin{lstlisting}
+public class Servidor {
+    public static void main(String[] args) throws Exception {
+        BancoServiceImpl banco = new BancoServiceImpl();
+
+        Registry registry = LocateRegistry.createRegistry(1099);
+        registry.rebind("BancoService", banco);
+
+        System.out.println("Servidor RMI pronto na porta 1099.");
+    }
+}
+\end{lstlisting}
+
+\vspace{0.2cm}
+\begin{lstlisting}
+// No cliente:
+Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+BancoService banco =
+    (BancoService) registry.lookup("BancoService");
+// banco e um stub -- parece local, e remoto
+\end{lstlisting}
+
+\vspace{0.15cm}
+\small O cliente não conhece \code{BancoServiceImpl}. Ele conhece apenas a interface e o stub retornado pelo Registry.
+\end{frame}
+
+% =========================================================
+% SLIDE 20 - DEMO
+% =========================================================
+\begin{frame}[fragile]{Demonstração prática}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \textbf{O que será demonstrado}
+            \begin{enumerate}
+                \item Servidor Java sobe: RMI \code{:1099} + REST \code{:8080}.
+                \item Interface React abre em \code{localhost:5173}.
+                \item Selecionar uma conta — saldo exibido em tempo real.
+                \item Realizar depósito — feed RMI pisca instantaneamente.
+                \item Realizar saque — extrato atualiza automaticamente.
+                \item Forçar saldo insuficiente — exceção serializada exibida.
+            \end{enumerate}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \textbf{Como subir}
+\begin{lstlisting}[language=bash,basicstyle=\ttfamily\tiny]
+./run.sh
+# compila Java, sobe servidor
+# e React automaticamente
+\end{lstlisting}
+
+            \vspace{0.3cm}
+            \begin{alertblock}{O que observar}
+                O feed \textit{RMI em tempo real} mostra o callback chegando ao browser via SSE — o servidor chamou o listener no cliente, que propagou para a interface.
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% =========================================================
+% PARTE 4
+% =========================================================
+\section{Análise crítica}
+
+% =========================================================
+% SLIDE 20 - CARACTERISTICAS
+% =========================================================
+\begin{frame}{Caracteristicas Importantes}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Serialização automatica}
+                \begin{itemize}
+                    \item Parâmetros são empacotados pelo RMI.
+                    \item Retornos e exceções também trafegam pela rede.
+                    \item Objetos por valor precisam ser serializaveis.
+                \end{itemize}
+            \end{block}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Garbage Collection Distribuido}
+                \begin{itemize}
+                    \item O RMI acompanha referências remotas.
+                    \item Usa uma ideia de \textit{lease} para referências ativas.
+                    \item Ajuda a liberar objetos remotos não referênciados.
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.3cm}
+    \begin{block}{Por que isso importa?}
+        Esses recursos mostram que RMI não é apenas uma chamada pela rede: ele integra comunicação remota ao modelo de objetos da plataforma Java.
+    \end{block}
+\end{frame}
+
+% =========================================================
+% SLIDE 21 - SEGURANCA
+% =========================================================
+\begin{frame}{Segurança e cuidados atuais}
+    \begin{itemize}
+        \item RMI expoe métodos pela rede; portanto, e necessário controlar quem pode chama-los.
+        \item Em ambientes reais, podem ser necessárias autenticação, autorização e canal seguro.
+        \item Java oferece fabricas de socket RMI com SSL/TLS, como \code{SslRMIClientSocketFactory} e \code{SslRMIServerSocketFactory}.
+        \item Serialização merece cuidado: dados e classes recebidas não devem ser tratados como confiáveis automaticamente.
+        \item Materiais antigos citam \code{SecurityManager}; em Java moderno, ele deixou de ser o caminho recomendado e foi desabilitado permanentemente no Java 24.
+    \end{itemize}
+
+    \vspace{0.25cm}
+    \begin{alertblock}{Mensagem para a apresentação}
+        RMI deve ser usado preferêncialmente em redes controladas ou sistemas internos, não como API pública aberta na Internet.
+    \end{alertblock}
+\end{frame}
+
+% =========================================================
+% SLIDE 22 - LIMITACOES
+% =========================================================
+\begin{frame}{Limitações e desafios}
+    \begin{table}
+        \small
+        \renewcommand{\arraystretch}{1.25}
+        \begin{tabular}{>{\bfseries}p{3.4cm}p{4.5cm}p{4.5cm}}
+            \toprule
+            Desafio & Problema & Cuidado pratico \\
+            \midrule
+            Latencia & Chamadas remotas são mais lentas que chamadas locais. & Evitar chamadas muito finas; agrupar operações. \\
+            Falhas parciais & Cliente, servidor ou rede podem falhar separadamente. & Tratar \code{RemoteException}, timeouts e recuperacao. \\
+            Acoplamento & Cliente e servidor compartilham interfaces Java. & Manter contratos estaveis e versionados. \\
+            Serialização & Mudancas em classes podem quebrar compatibilidade. & Usar \code{serialVersionUID} e evolucao cuidadosa. \\
+            Firewall/NAT & Objetos exportados sem porta fixa podem dificultar configuração. & Definir portas e politicas de rede. \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+% =========================================================
+% SLIDE 23 - COMPARACAO
+% =========================================================
+\begin{frame}{RMI vs outras tecnologias}
+    \begin{table}
+        \scriptsize
+        \renewcommand{\arraystretch}{1.25}
+        \begin{tabular}{>{\bfseries}p{2.2cm}p{4.7cm}p{5.3cm}}
+            \toprule
+            Tecnologia & Melhor quando... & Observação \\
+            \midrule
+            Java RMI & Ambiente 100\% Java, rede controlada, sistemas internos ou legados. & Modelo orientado a objetos e forte integracao com Java. \\
+            REST/HTTP & APIs web, integracao entre linguagens e serviços publicos. & Mais comum em sistemas modernos e interoperáveis. \\
+            gRPC & Alto desempenho, contratos bem definidos e multiplas linguagens. & RPC moderno com Protocol Buffers. \\
+            CORBA & Sistemas legados heterogêneos. & Historicamente importante, mas complexo e menos usado hoje. \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+    \vspace{0.2cm}
+    \begin{block}{Leitura crítica}
+        RMI não e necessariamente ``melhor'' ou ``pior''. Ele faz sentido quando o contexto e Java, interno e orientado a objetos.
+    \end{block}
+\end{frame}
+
+% =========================================================
+% SLIDE 24 - ONDE FAZ SENTIDO
+% =========================================================
+\begin{frame}{Onde RMI faz sentido hoje?}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \textbf{Cenários adequados}
+            \begin{itemize}
+                \item Sistemas internos escritos em Java.
+                \item Aplicacoes legadas que já usam RMI.
+                \item Prototipacao e ensino de sistemas distribuídos.
+                \item Comunicacao entre componentes Java em rede controlada.
+            \end{itemize}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \textbf{Exemplo real no ecossistema Java}
+            \begin{itemize}
+                \item JMX remoto pode usar conectores baseados em RMI.
+                \item Isso permite monitorar e gerenciar aplicações Java remotamente.
+            \end{itemize}
+
+            \vspace{0.35cm}
+            \begin{alertblock}{Cuidado}
+                Para APIs públicas ou ambientes heterogêneos, REST ou gRPC costumam ser escolhas mais naturais.
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% =========================================================
+% SLIDE 25 - FECHAMENTO
+% =========================================================
+\begin{frame}{Conclusão}
+    \begin{block}{Ideia principal}
+        Java RMI é um estudo de caso classico de invocação remota orientada a objetos.
+    \end{block}
+
+    \vspace{0.2cm}
+    \textbf{O que aprendemos:}
+    \begin{itemize}
+        \item RMI aplica a ideia de invocação remota ao modelo de objetos Java.
+        \item O cliente chama métodos por meio de uma interface remota.
+        \item O stub representa o objeto remoto no lado do cliente.
+        \item O Registry ajuda a localizar objetos remotos.
+        \item Serialização permite transportar parâmetros e resultados.
+        \item \code{RemoteException} lembra que chamada remota não e chamada local.
+    \end{itemize}
+
+    \vspace{0.2cm}
+    \begin{alertblock}{Mensagem final}
+        RMI facilita a programação distribuída em Java, mas não elimina os desafios fundamentais: latencia, falhas, acoplamento, versionamento e segurança.
+    \end{alertblock}
+\end{frame}
+
+% =========================================================
+% SLIDE 26 - REFERENCIAS
+% =========================================================
+\begin{frame}{Referências}
+    \scriptsize
+    \begin{itemize}
+        \item TANENBAUM, A. S.; VAN STEEN, M. \textit{Sistemas Distribuídos: Princípios e Paradigmas}. 2. ed. Pearson, 2007.
+        \item COULOURIS, G.; DOLLIMORE, J.; KINDBERG, T.; BLAIR, G. \textit{Sistemas Distribuídos: Conceitos e Projeto}. 5. ed. Bookman, 2013.
+        \item ORACLE. \textit{Java Remote Method Invocation Specification}. Disponível em: \url{https://docs.oracle.com/en/java/javase/25/docs/specs/rmi/index.html}
+        \item ORACLE. \textit{Java RMI - Distributed Object Model}. Disponível em: \url{https://docs.oracle.com/en/java/javase/17/docs/specs/rmi/objmodel.html}
+        \item ORACLE. \textit{Removed Tools and Components - Removal of RMI Static Stub Compiler}. Disponível em: \url{https://docs.oracle.com/en/java/javase/26/migrate/removed-tools-components.html}
+        \item OPENJDK. \textit{JEP 486: Permanently Disable the Security Manager}. Disponível em: \url{https://openjdk.org/jeps/486}
+        \item ORACLE. \textit{RMIConnectorServer - Java Management RMI}. Disponível em: \url{https://docs.oracle.com/en/java/javase/25/docs/api/java.management.rmi/javax/management/remote/rmi/RMIConnectorServer.html}
+        \item WALDO, J. et al. \textit{A Note on Distributed Computing}. Sun Microsystems Laboratories, 1994.
+    \end{itemize}
+\end{frame}
+
+% =========================================================
+% SLIDE 27 - PERGUNTAS
+% =========================================================
+\begin{frame}
+    \centering
+    \vspace{1cm}
+    {\Huge Perguntas?}
+
+    \vspace{1cm}
+    {\Large Obrigado pela atenção!}
+\end{frame}
+
+\end{document}
