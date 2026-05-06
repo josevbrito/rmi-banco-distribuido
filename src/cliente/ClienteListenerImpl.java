@@ -6,9 +6,11 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 /**
- * Implementação local do callback ClienteListener.
- * Estende UnicastRemoteObject para ser exportável como referência remota.
- * O servidor chamará onTransacao() neste objeto de volta ao cliente.
+ * Implementação do callback ClienteListener.
+ *
+ * Esta classe é exportada como objeto remoto via UnicastRemoteObject.
+ * O servidor recebe um stub dela e chama onTransacao() de volta ao cliente.
+ * Isso demonstra passagem de referência remota como parâmetro no RMI.
  */
 public class ClienteListenerImpl extends UnicastRemoteObject implements ClienteListener {
 
@@ -20,9 +22,13 @@ public class ClienteListenerImpl extends UnicastRemoteObject implements ClienteL
         this.nomeConta = nomeConta;
     }
 
-    // TODO: implementar onTransacao exibindo a notificação recebida
     @Override
     public void onTransacao(Transacao transacao) throws RemoteException {
-        // TODO: exibir notificação recebida
+        System.out.println();
+        System.out.println("  ╔══════════════════════════════════════════════╗");
+        System.out.printf ("  ║  NOTIFICAÇÃO — Conta: %-22s║%n", nomeConta);
+        System.out.printf ("  ║  %s  ║%n", transacao.toString());
+        System.out.println("  ╚══════════════════════════════════════════════╝");
+        System.out.println();
     }
 }
