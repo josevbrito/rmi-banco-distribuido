@@ -33,38 +33,38 @@ public class Cliente {
             System.out.println("    Stub obtido com sucesso.");
 
             // ── 2. Registrar callback (referência remota) ───────────────────
-            System.out.println("\n[2] Registrando listener de notificações para conta 'joao'...");
-            ClienteListenerImpl listener = new ClienteListenerImpl("joao");
-            banco.registrarListener("joao", listener);
+            System.out.println("\n[2] Registrando listener de notificações para conta 'jose'...");
+            ClienteListenerImpl listener = new ClienteListenerImpl("jose");
+            banco.registrarListener("jose", listener);
             System.out.println("    Listener registrado. O servidor chamará de volta neste objeto.");
 
             // ── 3. Consultar saldo inicial ──────────────────────────────────
-            System.out.println("\n[3] Consultando saldo inicial de 'joao'...");
-            double saldo = banco.consultarSaldo("joao");
+            System.out.println("\n[3] Consultando saldo inicial de 'jose'...");
+            double saldo = banco.consultarSaldo("jose");
             System.out.printf("    Saldo atual: R$ %.2f%n", saldo);
 
             // ── 4. Depósito ─────────────────────────────────────────────────
-            System.out.println("\n[4] Depositando R$ 250,00 na conta 'joao'...");
-            banco.depositar("joao", 250.00);
-            System.out.printf("    Saldo após depósito: R$ %.2f%n", banco.consultarSaldo("joao"));
+            System.out.println("\n[4] Depositando R$ 250,00 na conta 'jose'...");
+            banco.depositar("jose", 250.00);
+            System.out.printf("    Saldo após depósito: R$ %.2f%n", banco.consultarSaldo("jose"));
 
             // ── 5. Saque bem-sucedido ───────────────────────────────────────
-            System.out.println("\n[5] Sacando R$ 100,00 da conta 'joao'...");
-            banco.sacar("joao", 100.00);
-            System.out.printf("    Saldo após saque: R$ %.2f%n", banco.consultarSaldo("joao"));
+            System.out.println("\n[5] Sacando R$ 100,00 da conta 'jose'...");
+            banco.sacar("jose", 100.00);
+            System.out.printf("    Saldo após saque: R$ %.2f%n", banco.consultarSaldo("jose"));
 
             // ── 6. Saque com saldo insuficiente ────────────────────────────
             System.out.println("\n[6] Tentando sacar R$ 9.999,00 (deve falhar)...");
             try {
-                banco.sacar("joao", 9999.00);
+                banco.sacar("jose", 9999.00);
             } catch (SaldoInsuficienteException e) {
                 System.out.println("    EXCEÇÃO CAPTURADA (trafegou pela rede serializada):");
                 System.out.println("    " + e.getMessage());
             }
 
             // ── 7. Extrato completo ─────────────────────────────────────────
-            System.out.println("\n[7] Buscando extrato completo da conta 'joao'...");
-            List<Transacao> extrato = banco.getExtrato("joao");
+            System.out.println("\n[7] Buscando extrato completo da conta 'jose'...");
+            List<Transacao> extrato = banco.getExtrato("jose");
             System.out.println("    Extrato (cada Transacao chegou como objeto serializado):");
             for (Transacao t : extrato) {
                 System.out.println("      " + t);

@@ -16,9 +16,9 @@ import java.util.concurrent.*;
  *
  * Endpoints:
  *   GET  /contas            — lista todas as contas com saldo atual
- *   POST /depositar         — body: {"conta":"joao","valor":100}
- *   POST /sacar             — body: {"conta":"joao","valor":100}
- *   GET  /extrato?conta=joao — lista de transações da conta
+ *   POST /depositar         — body: {"conta":"jose","valor":100}
+ *   POST /sacar             — body: {"conta":"jose","valor":100}
+ *   GET  /extrato?conta=jose — lista de transações da conta
  *   GET  /eventos           — SSE stream de notificações em tempo real
  */
 public class ApiRest {
@@ -128,7 +128,7 @@ public class ApiRest {
         }
     }
 
-    /** POST /depositar — body: {"conta":"joao","valor":100} */
+    /** POST /depositar — body: {"conta":"jose","valor":100} */
     private void handleDepositar(HttpExchange ex) throws IOException {
         if (ex.getRequestMethod().equals("OPTIONS")) {
             corsHeaders(ex, "application/json");
@@ -149,7 +149,7 @@ public class ApiRest {
         }
     }
 
-    /** POST /sacar — body: {"conta":"joao","valor":100} */
+    /** POST /sacar — body: {"conta":"jose","valor":100} */
     private void handleSacar(HttpExchange ex) throws IOException {
         if (ex.getRequestMethod().equals("OPTIONS")) {
             corsHeaders(ex, "application/json");
@@ -174,7 +174,7 @@ public class ApiRest {
         }
     }
 
-    /** GET /extrato?conta=joao */
+    /** GET /extrato?conta=jose */
     private void handleExtrato(HttpExchange ex) throws IOException {
         if (ex.getRequestMethod().equals("OPTIONS")) {
             corsHeaders(ex, "application/json");
@@ -183,7 +183,7 @@ public class ApiRest {
         }
         corsHeaders(ex, "application/json");
         try {
-            String query = ex.getRequestURI().getQuery(); // "conta=joao"
+            String query = ex.getRequestURI().getQuery(); // "conta=jose"
             String conta = query != null && query.startsWith("conta=")
                     ? query.substring(6) : null;
             if (conta == null) {

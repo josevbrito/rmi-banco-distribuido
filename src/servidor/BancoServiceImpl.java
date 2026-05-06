@@ -25,8 +25,10 @@ public class BancoServiceImpl extends UnicastRemoteObject implements BancoServic
     public BancoServiceImpl() throws RemoteException {
         super();
         // Cria duas contas de teste com saldo inicial
-        criarConta("joao", 1000.0);
-        criarConta("maria", 500.0);
+        criarConta("higor", 1000.0);
+        criarConta("milena", 1000.0);
+        criarConta("ana", 1000.0);
+        criarConta("jose", 1000.0);
     }
 
     public void setApiRest(ApiRest apiRest) {
