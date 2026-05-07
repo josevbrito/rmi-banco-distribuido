@@ -3,7 +3,7 @@
 Estudo de caso de **Java RMI** para a disciplina de Sistemas Distribuídos.  
 Implementa um banco distribuído com interface React em tempo real.
 
-**Grupo:** Ana Iara Loayza Costa · José Victor Brito Costa · Hígor Pinheiro Costa · Milena Freire Britto Neves
+**Grupo:** Ana Iara Loayza Costa · José Victor Brito Costa · Higor Pinheiro Costa · Milena Freire Britto Neves
 
 ---
 
@@ -34,6 +34,19 @@ Implementa um banco distribuído com interface React em tempo real.
          │  operações via browser             │  cliente terminal (opcional)
                                        java -cp out cliente.Cliente
 ```
+
+---
+
+## Screenshots
+
+### Dashboard
+![Dashboard](images/dashboard.png)
+
+### Logs em tempo real
+![Logs](images/logs.png)
+
+### Referências RMI
+![Referências RMI](images/referencias_rmi.png)
 
 ---
 
