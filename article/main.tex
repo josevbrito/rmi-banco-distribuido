@@ -38,7 +38,7 @@
 \setbeamercolor{block body}{bg=rmiLightBlue}
 
 % =========================================================
-% Configuração de codigo Java
+% Configuração de código Java
 % =========================================================
 \lstdefinestyle{javastyle}{
     language=Java,
@@ -58,7 +58,7 @@
 \lstset{style=javastyle}
 
 % =========================================================
-% Macros uteis
+% Macros úteis
 % =========================================================
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\ok}{\ensuremath{\checkmark}}
@@ -152,8 +152,8 @@
 \begin{frame}{O que é Java RMI?}
     \begin{columns}[T]
         \begin{column}{0.50\textwidth}
-            \begin{block}{Definicao}
-                Java RMI permite que um objeto em uma JVM invoque métodos de um objeto localizado em outra JVM, possívelmente em outra máquina.
+            \begin{block}{Definição}
+                Java RMI permite que um objeto em uma JVM invoque métodos de um objeto localizado em outra JVM, possivelmente em outra máquina.
             \end{block}
 
             \vspace{0.2cm}
@@ -250,14 +250,14 @@
         \renewcommand{\arraystretch}{1.3}
         \begin{tabular}{>{\bfseries}p{3.2cm}p{9.2cm}}
             \toprule
-            Componente & Funcao \\
+            Componente & Função \\
             \midrule
             Interface remota & Define os métodos que podem ser invocados remotamente. \\
             Objeto remoto & Implementa a interface remota e executa a lógica real no servidor. \\
             Stub ou proxy & Representa o objeto remoto no lado do cliente. \\
             RMI Registry & Serviço de nomes usado para localizar objetos remotos. \\
             Serialização & Empacota parâmetros, retornos e exceções para trafegar pela rede. \\
-            RemoteException & Indica falhas especificas de comunicação remota. \\
+            RemoteException & Indica falhas específicas de comunicação remota. \\
             \bottomrule
         \end{tabular}
     \end{table}
@@ -292,7 +292,7 @@
         registry/.style={rectangle, rounded corners, draw=orange!80!black, fill=rmiLightYellow, thick, align=center, minimum width=3.2cm, minimum height=1.0cm},
         arr/.style={-{Latex[length=3mm]}, very thick, rmiBlue}
     ]
-        \node[block] (client) {Aplicacao\\cliente};
+        \node[block] (client) {Aplicação\\cliente};
         \node[block, right=1.2cm of client] (stub) {Stub\\proxy local};
         \node[runtime, right=1.2cm of stub] (transport) {RMI Runtime\\rede / JRMP};
         \node[block, right=1.2cm of transport] (remote) {Objeto remoto\\servidor};
@@ -322,7 +322,7 @@
                     \item Cria o objeto remoto.
                     \item Exporta o objeto para receber chamadas.
                     \item Registra o objeto com um nome.
-                    \item Aguarda requisicoes.
+                    \item Aguarda requisições.
                 \end{enumerate}
             \end{block}
 
@@ -337,7 +337,7 @@ reg.rebind("BancoService", objetoRemoto);
                 \begin{enumerate}
                     \item Acessa o Registry do servidor.
                     \item Faz \code{lookup} pelo nome.
-                    \item Recebé um stub.
+                    \item Recebe um stub.
                     \item Chama métodos no stub.
                 \end{enumerate}
             \end{block}
@@ -351,7 +351,7 @@ BancoService banco = (BancoService) reg.lookup("BancoService");
 
     \vspace{0.2cm}
     \centering
-    \small Porta padrao usual do Registry: \code{1099}.
+    \small Porta padrão usual do Registry: \code{1099}.
 \end{frame}
 
 % =========================================================
@@ -367,7 +367,7 @@ BancoService banco = (BancoService) reg.lookup("BancoService");
                 \item Dados atravessam a rede.
                 \item Servidor desempacota os parâmetros.
                 \item Objeto remoto executa o método real.
-                \item Resultado ou exceção e empacotado.
+                \item Resultado ou exceção é empacotado.
                 \item Resposta retorna ao cliente.
             \end{enumerate}
         \end{column}
@@ -400,7 +400,7 @@ BancoService banco = (BancoService) reg.lookup("BancoService");
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
             \begin{block}{Por valor}
-                Objetos não remotos são cópiados por serialização.
+                Objetos não remotos são copiados por serialização.
             \end{block}
             \begin{itemize}
                 \item Tipos primitivos e \code{String}.
@@ -426,7 +426,7 @@ Pessoa p = servico.buscarPessoa(10);
 
 \begin{lstlisting}[basicstyle=\ttfamily\tiny]
 servidor.registrarCallback(callback);
-// callback remoto e passado como stub
+// callback remoto é passado como stub
 \end{lstlisting}
         \end{column}
     \end{columns}
@@ -435,13 +435,13 @@ servidor.registrarCallback(callback);
 % =========================================================
 % SLIDE 12 - FALHAS
 % =========================================================
-\begin{frame}{Chamada remota não e chamada local}
+\begin{frame}{Riscos adicionais da chamada remota}
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
             \textbf{Uma chamada local pode falhar por:}
             \begin{itemize}
                 \item erro de programação;
-                \item exceção da regra de negocio;
+                \item exceção da regra de negócio;
                 \item problema de memória;
                 \item objeto nulo.
             \end{itemize}
@@ -462,7 +462,7 @@ servidor.registrarCallback(callback);
 
     \vspace{0.35cm}
     \begin{alertblock}{Ponto-chave}
-        Por isso, métodos remotos declaram \code{throws RemoteException}. A interface ja avisa que a rede faz parte da chamada.
+        Por isso, métodos remotos declaram \code{throws RemoteException}. A interface já avisa que a rede faz parte da chamada.
     \end{alertblock}
 \end{frame}
 
@@ -480,6 +480,34 @@ servidor.registrarCallback(callback);
 
     \vspace{0.6cm}
     \large{Exemplo: banco distribuído com interface em tempo real}
+\end{frame}
+
+
+% =========================================================
+% SLIDE 13.5 - MAPEAMENTO TEORIA x PRÁTICA
+% =========================================================
+\begin{frame}{O que cada operação do banco demonstra}
+    \centering
+    \begin{tikzpicture}[
+        conceito/.style={rectangle, rounded corners=5pt, draw=rmiTeal, fill=rmiLightGreen, thick, align=center, minimum width=4.2cm, minimum height=0.85cm},
+        metodo/.style={rectangle, rounded corners=5pt, draw=rmiBlue, fill=rmiLightBlue, thick, align=center, minimum width=4.2cm, minimum height=0.85cm},
+        arr/.style={-{Latex[length=3mm]}, thick, rmiTeal}
+    ]
+        \node[metodo]   (m1) at (0,  0)    {\code{depositar} / \code{sacar}};
+        \node[metodo]   (m2) at (0, -1.4)  {\code{getExtrato}};
+        \node[metodo]   (m3) at (0, -2.8)  {\code{registrarListener}};
+        \node[metodo]   (m4) at (0, -4.2)  {\code{sacar} (saldo insuficiente)};
+
+        \node[conceito] (c1) at (7.5,  0)    {Passagem de primitivo};
+        \node[conceito] (c2) at (7.5, -1.4)  {Passagem por valor\\{\footnotesize objeto serializado}};
+        \node[conceito] (c3) at (7.5, -2.8)  {Passagem por referência remota\\{\footnotesize callback servidor → cliente}};
+        \node[conceito] (c4) at (7.5, -4.2)  {Exceção que viaja pela rede\\{\footnotesize \code{Serializable}}};
+
+        \draw[arr] (m1) -- (c1);
+        \draw[arr] (m2) -- (c2);
+        \draw[arr] (m3) -- (c3);
+        \draw[arr] (m4) -- (c4);
+    \end{tikzpicture}
 \end{frame}
 
 % =========================================================
@@ -536,7 +564,7 @@ public interface BancoService extends Remote {
 \begin{itemize}
     \item \code{Remote} marca a interface como remota.
     \item \code{getExtrato} retorna uma lista de objetos — demonstra \textbf{passagem por valor}.
-    \item \code{registrarListener} recebe um objeto remoto — demonstra \textbf{passagem por referência remota}.
+    \item \code{registrarListener} recebe objeto — demonstra \textbf{passagem por referência remota}.
 \end{itemize}
 \end{frame}
 
@@ -627,7 +655,7 @@ public interface ClienteListener
 ClienteListenerImpl cb =
     new ClienteListenerImpl("cliente");
 banco.registrarListener("cliente", cb);
-// cb e enviado como stub ao servidor
+// cb é enviado como stub ao servidor
 \end{lstlisting}
             \end{block}
         \end{column}
@@ -673,7 +701,7 @@ public class Servidor {
 Registry registry = LocateRegistry.getRegistry("localhost", 1099);
 BancoService banco =
     (BancoService) registry.lookup("BancoService");
-// banco e um stub -- parece local, e remoto
+// banco é um stub -- parece local, é remoto
 \end{lstlisting}
 
 \vspace{0.15cm}
@@ -709,6 +737,10 @@ BancoService banco =
             \begin{alertblock}{O que observar}
                 O feed \textit{RMI em tempo real} mostra o callback chegando ao browser via SSE — o servidor chamou o listener no cliente, que propagou para a interface.
             \end{alertblock}
+
+            \vspace{0.2cm}
+            \centering
+            \scriptsize Repositório: \url{https://github.com/josevbrito/rmi-banco-distribuido}
         \end{column}
     \end{columns}
 \end{frame}
@@ -721,24 +753,24 @@ BancoService banco =
 % =========================================================
 % SLIDE 20 - CARACTERISTICAS
 % =========================================================
-\begin{frame}{Caracteristicas Importantes}
+\begin{frame}{Características Importantes}
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
-            \begin{block}{Serialização automatica}
+            \begin{block}{Serialização automática}
                 \begin{itemize}
                     \item Parâmetros são empacotados pelo RMI.
                     \item Retornos e exceções também trafegam pela rede.
-                    \item Objetos por valor precisam ser serializaveis.
+                    \item Objetos por valor precisam ser serializáveis.
                 \end{itemize}
             \end{block}
         \end{column}
 
         \begin{column}{0.48\textwidth}
-            \begin{block}{Garbage Collection Distribuido}
+            \begin{block}{Garbage Collection Distribuído}
                 \begin{itemize}
                     \item O RMI acompanha referências remotas.
                     \item Usa uma ideia de \textit{lease} para referências ativas.
-                    \item Ajuda a liberar objetos remotos não referênciados.
+                    \item Ajuda a liberar objetos remotos não referenciados.
                 \end{itemize}
             \end{block}
         \end{column}
@@ -755,7 +787,7 @@ BancoService banco =
 % =========================================================
 \begin{frame}{Segurança e cuidados atuais}
     \begin{itemize}
-        \item RMI expoe métodos pela rede; portanto, e necessário controlar quem pode chama-los.
+        \item RMI expõe métodos pela rede; portanto, é necessário controlar quem pode chamá-los.
         \item Em ambientes reais, podem ser necessárias autenticação, autorização e canal seguro.
         \item Java oferece fabricas de socket RMI com SSL/TLS, como \code{SslRMIClientSocketFactory} e \code{SslRMIServerSocketFactory}.
         \item Serialização merece cuidado: dados e classes recebidas não devem ser tratados como confiáveis automaticamente.
@@ -764,7 +796,7 @@ BancoService banco =
 
     \vspace{0.25cm}
     \begin{alertblock}{Mensagem para a apresentação}
-        RMI deve ser usado preferêncialmente em redes controladas ou sistemas internos, não como API pública aberta na Internet.
+        RMI deve ser usado preferencialmente em redes controladas ou sistemas internos, não como API pública aberta na Internet.
     \end{alertblock}
 \end{frame}
 
@@ -777,13 +809,13 @@ BancoService banco =
         \renewcommand{\arraystretch}{1.25}
         \begin{tabular}{>{\bfseries}p{3.4cm}p{4.5cm}p{4.5cm}}
             \toprule
-            Desafio & Problema & Cuidado pratico \\
+            Desafio & Problema & Cuidado prático \\
             \midrule
-            Latencia & Chamadas remotas são mais lentas que chamadas locais. & Evitar chamadas muito finas; agrupar operações. \\
-            Falhas parciais & Cliente, servidor ou rede podem falhar separadamente. & Tratar \code{RemoteException}, timeouts e recuperacao. \\
-            Acoplamento & Cliente e servidor compartilham interfaces Java. & Manter contratos estaveis e versionados. \\
-            Serialização & Mudancas em classes podem quebrar compatibilidade. & Usar \code{serialVersionUID} e evolucao cuidadosa. \\
-            Firewall/NAT & Objetos exportados sem porta fixa podem dificultar configuração. & Definir portas e politicas de rede. \\
+            Latência & Chamadas remotas são mais lentas que chamadas locais. & Evitar chamadas muito finas; agrupar operações. \\
+            Falhas parciais & Cliente, servidor ou rede podem falhar separadamente. & Tratar \code{RemoteException}, timeouts e recuperação. \\
+            Acoplamento & Cliente e servidor compartilham interfaces Java. & Manter contratos estáveis e versionados. \\
+            Serialização & Mudanças em classes podem quebrar compatibilidade. & Usar \code{serialVersionUID} e evolução cuidadosa. \\
+            Firewall/NAT & Objetos exportados sem porta fixa podem dificultar configuração. & Definir portas e políticas de rede. \\
             \bottomrule
         \end{tabular}
     \end{table}
@@ -800,9 +832,9 @@ BancoService banco =
             \toprule
             Tecnologia & Melhor quando... & Observação \\
             \midrule
-            Java RMI & Ambiente 100\% Java, rede controlada, sistemas internos ou legados. & Modelo orientado a objetos e forte integracao com Java. \\
-            REST/HTTP & APIs web, integracao entre linguagens e serviços publicos. & Mais comum em sistemas modernos e interoperáveis. \\
-            gRPC & Alto desempenho, contratos bem definidos e multiplas linguagens. & RPC moderno com Protocol Buffers. \\
+            Java RMI & Ambiente 100\% Java, rede controlada, sistemas internos ou legados. & Modelo orientado a objetos e forte integração com Java. \\
+            REST/HTTP & APIs web, integração entre linguagens e serviços públicos. & Mais comum em sistemas modernos e interoperáveis. \\
+            gRPC & Alto desempenho, contratos bem definidos e múltiplas linguagens. & RPC moderno com Protocol Buffers. \\
             CORBA & Sistemas legados heterogêneos. & Historicamente importante, mas complexo e menos usado hoje. \\
             \bottomrule
         \end{tabular}
@@ -810,7 +842,7 @@ BancoService banco =
 
     \vspace{0.2cm}
     \begin{block}{Leitura crítica}
-        RMI não e necessariamente ``melhor'' ou ``pior''. Ele faz sentido quando o contexto e Java, interno e orientado a objetos.
+        RMI não é necessariamente ``melhor'' ou ``pior''. Ele faz sentido quando o contexto é Java, interno e orientado a objetos.
     \end{block}
 \end{frame}
 
@@ -823,9 +855,9 @@ BancoService banco =
             \textbf{Cenários adequados}
             \begin{itemize}
                 \item Sistemas internos escritos em Java.
-                \item Aplicacoes legadas que já usam RMI.
-                \item Prototipacao e ensino de sistemas distribuídos.
-                \item Comunicacao entre componentes Java em rede controlada.
+                \item Aplicações legadas que já usam RMI.
+                \item Prototipação e ensino de sistemas distribuídos.
+                \item Comunicação entre componentes Java em rede controlada.
             \end{itemize}
         \end{column}
 
@@ -849,7 +881,7 @@ BancoService banco =
 % =========================================================
 \begin{frame}{Conclusão}
     \begin{block}{Ideia principal}
-        Java RMI é um estudo de caso classico de invocação remota orientada a objetos.
+        Java RMI é um estudo de caso clássico de invocação remota orientada a objetos.
     \end{block}
 
     \vspace{0.2cm}
@@ -860,12 +892,12 @@ BancoService banco =
         \item O stub representa o objeto remoto no lado do cliente.
         \item O Registry ajuda a localizar objetos remotos.
         \item Serialização permite transportar parâmetros e resultados.
-        \item \code{RemoteException} lembra que chamada remota não e chamada local.
+        \item \code{RemoteException} lembra que chamada remota não é chamada local.
     \end{itemize}
 
     \vspace{0.2cm}
     \begin{alertblock}{Mensagem final}
-        RMI facilita a programação distribuída em Java, mas não elimina os desafios fundamentais: latencia, falhas, acoplamento, versionamento e segurança.
+        RMI facilita a programação distribuída em Java, mas não elimina os desafios fundamentais: latência, falhas, acoplamento, versionamento e segurança.
     \end{alertblock}
 \end{frame}
 
@@ -887,15 +919,12 @@ BancoService banco =
 \end{frame}
 
 % =========================================================
-% SLIDE 27 - PERGUNTAS
+% SLIDE 27 - Agradecimento
 % =========================================================
 \begin{frame}
     \centering
     \vspace{1cm}
-    {\Huge Perguntas?}
-
-    \vspace{1cm}
-    {\Large Obrigado pela atenção!}
+    {\Huge Agradecemos pela atenção!}
 \end{frame}
 
 \end{document}
